@@ -1,5 +1,4 @@
 # Trading-Indicator-2
-# Trading-Indicator-1
 Step-1:
 Create a New Strategy Folder in Trading View.
 
