@@ -1,0 +1,58 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © gauthamsunny621
+
+//@version=4
+strategy(title="Gautham Strategy", shorttitle="Gautham Cross", overlay=true)
+
+//Input
+
+//10 EMA
+momsource = input(defval = close, title="10 EMA")
+momlength = input(defval = 10, title = "10 EMA Period",minval = 1)
+emamom = ema(momsource,momlength)
+
+//50 EMA
+slowsource = input(defval = close, title="Slow 50")
+slowlength = input(defval = 50,title = "50 EMA Period", minval = 1)
+emaslow = ema(slowsource,slowlength)
+
+//200 EMA
+ema3=ema(close,200)
+src1 = input(close, title="Source")
+price=security(syminfo.tickerid, timeframe.period, src1)
+plot(ema3, title="EMA 200", color=color.black, linewidth=3)
+
+//vwap
+vwap1=vwap(close)
+
+
+//plotting
+mom = plot(emamom, title="EMA 10", color = color.red, linewidth = 2) // If rebounds here, it shows that the trend is high in momentum
+long = plot(emaslow, title="EMA 50", color = color.black, linewidth = 2) // If rebounds here, it shows that the trend is normal in momentum
+plot(cross(emamom, emaslow) ? emamom : na, style = plot.style_cross, color= color.black , linewidth = 3)
+emacross = cross(emamom,emaslow)
+
+
+//MACD
+// Input MACD
+fast_length = input(title="Fast Length", type=input.integer, defval=12)
+slow_length = input(title="Slow Length", type=input.integer, defval=26)
+src = input(title="Source", type=input.source, defval=close)
+signal_length = input(title="Signal Smoothing", type=input.integer, minval = 1, maxval = 50, defval = 9)
+
+//Calculating
+fast_ma = ema(src, fast_length)
+slow_ma = ema(src, slow_length)
+macd = fast_ma - slow_ma
+signal = ema(macd, signal_length)
+hist = macd - signal
+
+//Summary
+goldenbuy = emacross and macd > signal  and price>vwap1 and price>emaslow and price>emamom //and price>ema3
+goldensell = emacross and macd < signal  and price<vwap1 and price<emaslow and price<emamom //and price<ema3
+
+
+plotshape(goldenbuy, title="buy", text="Buy", color=color.green, style=shape.labelup, location=location.belowbar, size=size.small, textcolor=color.white, transp=0)  //plot for buy icon
+plotshape(goldensell, title="sell", text="Sell", color=color.red, style=shape.labeldown, location=location.abovebar, size=size.small, textcolor=color.white, transp=0)  //plot for sell icon
+
+    
